@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'com.layer', name: 'gradle-git-repo-plugin', version: '2.0.2'
+    }
+}
+
+plugins {
+    id 'maven-publish'
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+apply plugin: 'git-repo'
+
+repositories {
+    mavenCentral()
+    git("https://github.com/Hendrik-H/sample-maven-repository.git", "sample", "master", "releases")
+}
+
+dependencies {
+    compile localGroovy()
+    
+    testCompile gradleTestKit()
+}
+
+version = '0.1.0'
+
+gitPublishConfig{
+    org = "Hendrik-H"
+    repo = "sample-maven-repository"
+    gitUrl = "https://${provider}/${org}/${repo}.git"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId    'sample'
+            artifactId 'sample-gradle-init-plugin'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
+        }
+    }
+}
+
